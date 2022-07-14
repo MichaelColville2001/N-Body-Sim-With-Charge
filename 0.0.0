@@ -3,7 +3,7 @@ from pygame.locals import *
 from math import sqrt
 from math import pi
 def grav(massA, massB, Distance):  # returns gravitational force
-    return 0.01 * (massA * massB / ((Distance ** 2) + 1))
+    return 0.1 * (massA * massB / ((Distance ** 2) + 1))
 
 def mag(magA, magB, Distance):  # returns magnetic force
     if magA == 0 or magB == 0:
