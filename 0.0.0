@@ -1,0 +1,173 @@
+import pygame
+from pygame.locals import *
+from math import sqrt
+def grav(massA, massB, Distance):  # returns gravitational force
+    return 0.1 * (massA * massB / ((Distance ** 2) + 1))
+
+def mag(magA, magB, Distance):  # returns magnetic force
+    if magA == 0 or magB == 0:
+        return 0
+    if magA > 0 and magB > 0 or magA < 0 and magB < 0:
+        return -(abs(magA * magB) / ((Distance ** 2) + 1))
+    if magA < 0:
+        return ((-magA) * magB) / ((Distance ** 2) + 1)
+    return ((-magB) * magA) / ((Distance ** 2) + 1)
+
+def x_vel(timestep, gforce, mforce, x1, y1, x2, y2, ):  # returns next x velocity
+    v = timestep * (gforce + mforce)
+    x2 = x2 - x1
+    y2 = y2 - y1
+    t = abs(x2) + abs(y2)
+    xp = x2 / t
+    return ((xp * v))
+
+def y_vel(timestep, gforce, mforce, x1, y1, x2, y2, ):  # returns next y velocity
+    v = timestep * (gforce + mforce)
+    x2 = x2 - x1
+    y2 = y2 - y1
+    t = abs(x2) + abs(y2)
+    yp = y2 / t
+    return ((yp * v))
+
+def x_pos(timestep, x1, vx1):  # returns next x position
+    return x1 + (timestep * vx1)
+
+def y_pos(timestep, y1, vy1):  # returns next y position
+    return y1 + (timestep * vy1)
+
+def Dis(x1, y1, x2, y2):
+    return sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+def drawPoint(x, y, color):
+    s = pygame.Surface((1, 1))  # the object surface 1 x 1 pixel (a point!)
+    s.fill(color)  # color as (r,g,b); e.g. (100,20,30)
+    r, r.x, r.y = s.get_rect(), x, y
+    WIN.blit(s, r)
+
+Particle_Number = int(input('number of particles='))
+Window_Scale=20
+main = [0]
+for i in range(Particle_Number * 6):
+    main.append(0)
+temp = [0]
+for i in range(Particle_Number * 6):
+    temp.append(0)
+for PN in range(Particle_Number):  # PN = particle number
+    for Car in range(6):  # car = caracteristics
+        if Car == 0:
+            main[((PN * 6) + 1) + Car] = float(input("particle " + str(PN + 1) + " mass="))
+        if Car == 1:
+            main[((PN * 6) + 1) + Car] = float(input("particle " + str(PN + 1) + " charge="))
+        if Car == 2:
+            main[((PN * 6) + 1) + Car] = float(input("particle " + str(PN + 1) + " x_pos="))
+        if Car == 3:
+            main[((PN * 6) + 1) + Car] = float(input("particle " + str(PN + 1) + " y_pos="))
+        if Car == 4:
+            main[((PN * 6) + 1) + Car] = float(input("particle " + str(PN + 1) + " x_vel="))
+        if Car == 5:
+            main[((PN * 6) + 1) + Car] = float(input("particle " + str(PN + 1) + " y_vel="))
+timestep = float(input('timestep='))
+pygame.init()
+WIDTH, HEIGHT = 1920, 1080
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('N Body Sim')
+xy=[960,540]
+trailx=[0]
+for i in range((Particle_Number+1)*255):
+    trailx.append(0)
+traily=[0]
+for i in range((Particle_Number+1)*255):
+    traily.append(0)
+black = (0, 0, 0)
+white = (255, 255, 255)
+red = (255, 0, 0)
+blue = (0, 0, 255)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_SPACE:
+            run=True
+            while run:
+              for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                  if event.key == pygame.K_SPACE:
+                    run=False
+                if event.type == pygame.QUIT:
+                      running = False
+                      run=False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+             pos = pygame.mouse.get_pos()
+             xx = pos[0]-960
+             yy = pos[1]-540
+             state='up'
+        if event.type == pygame.MOUSEBUTTONUP and state == 'up':
+              pos = pygame.mouse.get_pos()
+              xx = -(xx-(pos[0]-960))
+              yy = -(yy-(pos[1]-540))
+              xy[0] = xy[0]+(xx)
+              xy[1] = xy[1]+(yy)
+              WIN.fill(black)
+              state='down'
+        if event.type == MOUSEWHEEL:
+             Window_Scale = Window_Scale + ((Window_Scale * event.y*.1))
+             WIN.fill(black)
+    pygame.display.update()
+    for A in range(Particle_Number):
+        temp[(A * 6) + 1] = main[(A * 6) + 1]
+        temp[(A * 6) + 2] = main[(A * 6) + 2]
+        temp[(A * 6) + 3] = main[(A * 6) + 3]
+        temp[(A * 6) + 4] = main[(A * 6) + 4]
+        temp[(A * 6) + 5] = main[(A * 6) + 5]
+        temp[(A * 6) + 6] = main[(A * 6) + 6]
+        for i in range(255):
+            trailx[(A * 255) + (i+1)] = trailx[(A * 255) + (i + 2)]
+            traily[(A * 255) + (i+1)] = traily[(A * 255) + (i + 2)]
+        trailx[(A * 255) + 255] = main[(A * 6) + 3]
+        traily[(A * 255) + 255] = main[(A * 6) + 4]
+        for i in range(256):
+          if main[(A*6)+2] == 0:
+            drawPoint((round(Window_Scale * trailx[(A*255)+(i)]) + xy[0]), (round(Window_Scale * traily[(A*255)+(i)]) + xy[1]), ((i),(i),(i)))
+          if main[(A*6)+2] > 0:
+            drawPoint((round(Window_Scale * trailx[(A*255)+(i)]) + xy[0]), (round(Window_Scale * traily[(A*255)+(i)]) + xy[1]), ((i),(0),(0)))
+          if main[(A*6)+2] < 0:
+            drawPoint((round(Window_Scale * trailx[(A*255)+(i)]) + xy[0]), (round(Window_Scale * traily[(A*255)+(i)]) + xy[1]), ((0),(0),(i)))
+        pygame.display.update()
+    for B in range(Particle_Number):
+        main[(B * 6) + 1] = temp[(B * 6) + 1]
+        main[(B * 6) + 2] = temp[(B * 6) + 2]
+        main[(B * 6) + 3] = x_pos(timestep, temp[(B * 6) + 3], temp[(B * 6) + 5])
+        main[(B * 6) + 4] = y_pos(timestep, temp[(B * 6) + 4], temp[(B * 6) + 6])
+        for ij in range(Particle_Number):
+            if ij != B:
+                a = (x_vel(timestep, grav(temp[(B * 6) + 1], temp[(ij * 6) + 1],
+                                          Dis(temp[(B * 6) + 3], temp[(B * 6) + 4], temp[(ij * 6) + 3],
+                                              temp[(ij * 6) + 4])), mag(temp[(B * 6) + 2], temp[(ij * 6) + 2],
+                                                                        Dis(temp[(B * 6) + 3], temp[(B * 6) + 4],
+                                                                            temp[(ij * 6) + 3], temp[(ij * 6) + 4])),
+                           temp[(B * 6) + 3], temp[(B * 6) + 4], temp[(ij * 6) + 3], temp[(ij * 6) + 4]) / temp[
+                         (B * 6) + 1])
+                main[(B * 6) + 5] = a+main[(B * 6) + 5]
+        for ik in range(Particle_Number):
+            if ik != B:
+                b = (y_vel(timestep, grav(temp[(B * 6) + 1], temp[(ik * 6) + 1],
+                                          Dis(temp[(B * 6) + 3], temp[(B * 6) + 4], temp[(ik * 6) + 3],
+                                              temp[(ik * 6) + 4])), mag(temp[(B * 6) + 2], temp[(ik * 6) + 2],
+                                                                        Dis(temp[(B * 6) + 3], temp[(B * 6) + 4],
+                                                                            temp[(ik * 6) + 3], temp[(ik * 6) + 4])),
+                           temp[(B * 6) + 3], temp[(B * 6) + 4], temp[(ik * 6) + 3], temp[(ik * 6) + 4]) / temp[
+                         (B * 6) + 1])
+                main[(B * 6) + 6] = b+main[(B * 6) + 6]
+        for C in range(Particle_Number):
+            a = 0
+            if main[(C * 6) + 2] > 0:
+                a = red
+            if main[(C * 6) + 2] < 0:
+                a = blue
+            if main[(C * 6) + 2] == 0:
+                a = white
+            drawPoint((round(Window_Scale * main[(C * 6) + 3]) + xy[0]), (round(Window_Scale * main[(C * 6) + 4]) + xy[1]), a)
+    pygame.display.update()
