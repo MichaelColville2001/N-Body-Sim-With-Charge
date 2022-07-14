@@ -13,7 +13,7 @@ def mag(magA, magB, Distance):  # returns magnetic force
         return ((-magA) * magB) / ((Distance ** 2) + 1)
     return ((-magB) * magA) / ((Distance ** 2) + 1)
 
-def x_vel(timestep, gforce, mforce, x1, y1, x2, y2, ):  # returns next x velocity test
+def x_vel(timestep, gforce, mforce, x1, y1, x2, y2, ):  # returns next x velocity
     v = timestep * (gforce + mforce)
     x2 = x2 - x1
     y2 = y2 - y1
